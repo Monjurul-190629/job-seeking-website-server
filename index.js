@@ -6,8 +6,13 @@ const app = express();
 const port = process.env.Port || 5000;
 
 
-/// middleware
-app.use(cors());
+// middleware
+app.use(
+  cors({
+      origin : ["https://job-seeking-website-8ebe5.firebaseapp.com", "https://job-seeking-website-8ebe5.web.app", "http://localhost:5173"],
+      credentials : true,
+  })
+);
 app.use(express.json());
 
 console.log(process.env.DB_user)
@@ -43,17 +48,22 @@ async function run() {
       const result = await JobCollection.insertOne(job);
       res.send(result);
     });
-
-
-    /* 
-    /// find jobs 
-    app.get('/jobs', async (req, res) => {
-      const cursor = JobCollection.find();
-      const result = await cursor.toArray();
-      res.send(result)
-    })
     
-    */
+   
+
+    
+    /// find jobs 
+    app.get('/Jobs', async (req, res) => {
+      console.log(req.query.email);  // This will log the email from the query parameter
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };  // Filters jobs by email
+      }
+      const result = await JobCollection.find(query).toArray();
+      res.send(result);  // Sends the filtered results back to the client
+    });
+    
+
 
     /**
      * 
@@ -86,16 +96,7 @@ async function run() {
 
 
 
-    //// find jobs with email
-    app.get('/jobs', async (req, res) => {
-      console.log(req.query.email);
-      let query = {};
-      if (req.query?.email) {
-        query = { email: req.query.email }
-      }
-      const result = await JobCollection.find(query).toArray();
-      res.send(result);
-    })
+    
 
 
     //// FOR UPDATE
